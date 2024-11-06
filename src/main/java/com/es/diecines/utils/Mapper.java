@@ -8,12 +8,21 @@ import com.es.diecines.repository.PeliculaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * The type Mapper.
+ */
 @Component
 public class Mapper {
 
     @Autowired
     private PeliculaRepository peliculaRepository;
 
+    /**
+     * Map to dto peliculas dto.
+     *
+     * @param pelicula the pelicula
+     * @return the peliculas dto
+     */
     public PeliculasDTO mapToDTO(Pelicula pelicula) {
         PeliculasDTO peliculaDTO = new PeliculasDTO();
         peliculaDTO.setId(pelicula.getId());
@@ -28,6 +37,12 @@ public class Mapper {
         return peliculaDTO;
     }
 
+    /**
+     * Map to entity pelicula.
+     *
+     * @param dto the dto
+     * @return the pelicula
+     */
     public Pelicula mapToEntity(PeliculasDTO dto) {
         Pelicula entity = new Pelicula();
         entity.setId(dto.getId());
@@ -42,6 +57,12 @@ public class Mapper {
         return entity;
     }
 
+    /**
+     * Map to dto sesion dto.
+     *
+     * @param sesion the sesion
+     * @return the sesion dto
+     */
     public SesionDTO mapToDTO(Sesiones sesion) {
         SesionDTO sesionDTO = new SesionDTO();
         sesionDTO.setId(sesion.getId());
@@ -51,6 +72,12 @@ public class Mapper {
         return sesionDTO;
     }
 
+    /**
+     * Map to entity sesiones.
+     *
+     * @param dto the dto
+     * @return the sesiones
+     */
     public Sesiones mapToEntity(SesionDTO dto) {
         Sesiones sesion = new Sesiones();
         sesion.setId(dto.getId());

@@ -12,9 +12,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * The type Sesiones service.
- */
 @Service
 public class SesionesService {
 
@@ -24,32 +21,16 @@ public class SesionesService {
     @Autowired
     private Mapper mapper;
 
-    /**
-     * Instantiates a new Sesiones service.
-     *
-     * @param sesionRepository the sesion repository
-     */
     public SesionesService(SesionesRepository sesionRepository) {
         this.sesionRepository = sesionRepository;
     }
 
-    /**
-     * Save sesion dto.
-     *
-     * @param sesionDTO the sesion dto
-     * @return the sesion dto
-     */
     public SesionDTO save(SesionDTO sesionDTO) {
         Sesiones sesion = mapper.mapToEntity(sesionDTO);
         sesion = sesionRepository.save(sesion);
         return mapper.mapToDTO(sesion);
     }
 
-    /**
-     * Gets all.
-     *
-     * @return the all
-     */
     public List<SesionDTO> getAll() {
         List<Sesiones> sesiones = sesionRepository.findAll();
         List<SesionDTO> sesionesDTO = new ArrayList<>();
@@ -57,12 +38,6 @@ public class SesionesService {
         return sesionesDTO;
     }
 
-    /**
-     * Delete by id boolean.
-     *
-     * @param id the id
-     * @return the boolean
-     */
     public boolean deleteByID(String id) {
         Long idLong = StringToLong.stringToLong(id);
         Sesiones sesion = sesionRepository.findById(idLong).orElse(null);
@@ -74,13 +49,6 @@ public class SesionesService {
         }
     }
 
-    /**
-     * Update sesion dto.
-     *
-     * @param id        the id
-     * @param sesionDTO the sesion dto
-     * @return the sesion dto
-     */
     public SesionDTO update(String id, SesionDTO sesionDTO) {
         Long idLong = StringToLong.stringToLong(id);
         Sesiones sesion = sesionRepository.findById(idLong).orElse(null);
@@ -93,11 +61,6 @@ public class SesionesService {
         return mapper.mapToDTO(sesionActualizada);
     }
 
-    /**
-     * Gets by date.
-     *
-     * @return the by date
-     */
     public List<SesionDTO> getByDate() {
         LocalDate today = LocalDate.now();
         List<Sesiones> sesiones = sesionRepository.findByDate(today);
