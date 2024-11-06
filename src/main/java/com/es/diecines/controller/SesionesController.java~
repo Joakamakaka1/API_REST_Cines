@@ -49,7 +49,7 @@ public class SesionesController {
         return ResponseEntity.ok(sesionService.update(id, sesionDTO));
     }
 
-    @GetMapping("/hoy") // -> http://localhost:8080/sesiones/hoy
+    @GetMapping("/hoy")
     public ResponseEntity<List<SesionDTO>> getSesionesToday() {
         List<SesionDTO> sesiones = sesionService.getByDate();
         return ResponseEntity.ok(sesiones);
