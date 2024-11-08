@@ -40,62 +40,61 @@ public class SesionesService {
      * @return the sesion dto
      */
     public SesionDTO save(SesionDTO sesionDTO) {
-        Sesiones sesion = mapper.mapToEntity(sesionDTO);
-        sesion = sesionRepository.save(sesion);
-        return mapper.mapToDTO(sesion);
-    }
-
-    /**
-     * Gets all.
-     *
-     * @return the all
-     */
-    public List<SesionDTO> getAll() {
-        List<Sesiones> sesiones = sesionRepository.findAll();
-        List<SesionDTO> sesionesDTO = new ArrayList<>();
-        sesiones.forEach(sesion -> sesionesDTO.add(mapper.mapToDTO(sesion)));
-        return sesionesDTO;
-    }
-
-    /**
-     * Delete by id boolean.
-     *
-     * @param id the id
-     */
-    public void deleteByID(String id) {
-        Long idLong = StringToLong.stringToLong(id);
-        sesionRepository.findById(idLong).ifPresent(sesion -> sesionRepository.deleteById(idLong));
-    }
-
-    /**
-     * Update sesion dto.
-     *
-     * @param id        the id
-     * @param sesionDTO the sesion dto
-     * @return the sesion dto
-     */
-    public SesionDTO update(String id, SesionDTO sesionDTO) {
-        Long idLong = StringToLong.stringToLong(id);
-        Sesiones sesion = sesionRepository.findById(idLong).orElse(null);
-        if (sesion == null) {
-            return null;
+        try {
+            Sesiones sesion = mapper.mapToEntity(sesionDTO);
+            sesion = sesionRepository.save(sesion);
+            return mapper.mapToDTO(sesion);
+        } catch (Exception e) {
+            throw new BdException("Error al guardar la sesión: " + e.getMessage(), e);
         }
-        Sesiones sesionActualizada = mapper.mapToEntity(sesionDTO);
-        sesionActualizada.setId(idLong);
-        sesionRepository.save(sesionActualizada);
-        return mapper.mapToDTO(sesionActualizada);
     }
 
-    /**
-     * Gets by date.
-     *
-     * @return the by date
-     */
+    public List<SesionDTO> getAll() {
+        try {
+            List<Sesiones> sesiones = sesionRepository.findAll();
+            List<SesionDTO> sesionesDTO = new ArrayList<>();
+            sesiones.forEach(sesion -> sesionesDTO.add(mapper.mapToDTO(sesion)));
+            return sesionesDTO;
+        } catch (Exception e) {
+            throw new BdException("Error al obtener todas las sesiones: " + e.getMessage(), e);
+        }
+    }
+
+    public boolean deleteByID(String id) {
+        try {
+            Long idLong = StringToLong.stringToLong(id);
+            sesionRepository.findById(idLong).ifPresent(sesion -> sesionRepository.deleteById(idLong));
+            return true;
+        } catch (Exception e) {
+            throw new BdException("Error al eliminar la sesión con ID: " + id, e);
+        }
+    }
+
+    public SesionDTO update(String id, SesionDTO sesionDTO) {
+        try {
+            Long idLong = StringToLong.stringToLong(id);
+            Sesiones sesion = sesionRepository.findById(idLong).orElse(null);
+            if (sesion == null) {
+                throw new BdException("Sesión no encontrada para actualizar con ID: " + id);
+            }
+            Sesiones sesionActualizada = mapper.mapToEntity(sesionDTO);
+            sesionActualizada.setId(idLong);
+            sesionRepository.save(sesionActualizada);
+            return mapper.mapToDTO(sesionActualizada);
+        } catch (Exception e) {
+            throw new BdException("Error al actualizar la sesión con ID: " + id, e);
+        }
+    }
+
     public List<SesionDTO> getByDate() {
-        LocalDate today = LocalDate.now();
-        List<Sesiones> sesiones = sesionRepository.findByDate(today);
-        List<SesionDTO> sesionesDTO = new ArrayList<>();
-        sesiones.forEach(sesion -> sesionesDTO.add(mapper.mapToDTO(sesion)));
-        return sesionesDTO;
+        try {
+            LocalDate today = LocalDate.now();
+            List<Sesiones> sesiones = sesionRepository.findByDate(today);
+            List<SesionDTO> sesionesDTO = new ArrayList<>();
+            sesiones.forEach(sesion -> sesionesDTO.add(mapper.mapToDTO(sesion)));
+            return sesionesDTO;
+        } catch (Exception e) {
+            throw new BdException("Error al obtener sesiones por fecha de hoy: " + e.getMessage(), e);
+        }
     }
 }

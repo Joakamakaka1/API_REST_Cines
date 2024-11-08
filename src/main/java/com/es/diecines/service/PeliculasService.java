@@ -1,6 +1,7 @@
 package com.es.diecines.service;
 
 import com.es.diecines.dto.PeliculasDTO;
+import com.es.diecines.errores.BdException;
 import com.es.diecines.model.Pelicula;
 import com.es.diecines.repository.PeliculaRepository;
 import com.es.diecines.utils.Mapper;
@@ -39,80 +40,73 @@ public class PeliculasService {
      * @return the peliculas dto
      */
     public PeliculasDTO createPelicula(PeliculasDTO peliculaDTO) {
-        Pelicula pelicula = mapper.mapToEntity(peliculaDTO);
-        pelicula = peliculaRepository.save(pelicula);
-
-        return mapper.mapToDTO(pelicula);
-    }
-
-    /**
-     * Gets by id.
-     *
-     * @param id the id
-     * @return the by id
-     */
-    public PeliculasDTO getByID(String id) {
-        Long idLong = StringToLong.stringToLong(id);
-        Pelicula pelicula = peliculaRepository.findById(idLong).orElse(null);
-        if (pelicula == null) {
-            return null;
-        } else {
+        try {
+            Pelicula pelicula = mapper.mapToEntity(peliculaDTO);
+            pelicula = peliculaRepository.save(pelicula);
             return mapper.mapToDTO(pelicula);
+        } catch (Exception e) {
+            throw new BdException("Error al crear la película: " + e.getMessage(), e);
         }
     }
 
-    /**
-     * Gets all.
-     *
-     * @return the all
-     */
+    public PeliculasDTO getByID(String id) {
+        try {
+            Long idLong = StringToLong.stringToLong(id);
+            Pelicula pelicula = peliculaRepository.findById(idLong).orElse(null);
+            if (pelicula == null) {
+                throw new BdException("Película no encontrada con ID: " + id);
+            }
+            return mapper.mapToDTO(pelicula);
+        } catch (Exception e) {
+            throw new BdException("Error al obtener la película por ID: " + id, e);
+        }
+    }
+
     public List<PeliculasDTO> getAll() {
-        List<Pelicula> peliculas = peliculaRepository.findAll();
-        List<PeliculasDTO> peliculasDTO = new ArrayList<>();
-        peliculas.forEach(pelicula -> peliculasDTO.add(mapper.mapToDTO(pelicula)));
-        return peliculasDTO;
-    }
-
-    /**
-     * Delete by id boolean.
-     *
-     * @param id the id
-     */
-    public boolean deleteByID(String id) {
-        Long idLong = StringToLong.stringToLong(id);
-        peliculaRepository.findById(idLong).ifPresent(pelicula -> peliculaRepository.deleteById(idLong));
-        return true;
-    }
-
-    /**
-     * Update peliculas dto.
-     *
-     * @param id          the id
-     * @param peliculaDTO the pelicula dto
-     * @return the peliculas dto
-     */
-    public PeliculasDTO update(String id, PeliculasDTO peliculaDTO) {
-        Long idLong = StringToLong.stringToLong(id);
-        Pelicula pelicula = peliculaRepository.findById(idLong).orElse(null);
-        if (pelicula == null) {
-            return null;
+        try {
+            List<Pelicula> peliculas = peliculaRepository.findAll();
+            List<PeliculasDTO> peliculasDTO = new ArrayList<>();
+            peliculas.forEach(pelicula -> peliculasDTO.add(mapper.mapToDTO(pelicula)));
+            return peliculasDTO;
+        } catch (Exception e) {
+            throw new BdException("Error al obtener todas las películas: " + e.getMessage(), e);
         }
-        Pelicula peliculaActualizada = mapper.mapToEntity(peliculaDTO);
-        peliculaActualizada.setId(idLong);
-        peliculaRepository.save(peliculaActualizada);
-        return mapper.mapToDTO(peliculaActualizada);
     }
 
-    /**
-     * Gets by rating.
-     *
-     * @param rating the rating
-     * @return the by rating
-     */
+    public boolean deleteByID(String id) {
+        try {
+            Long idLong = StringToLong.stringToLong(id);
+            peliculaRepository.findById(idLong).ifPresent(pelicula -> peliculaRepository.deleteById(idLong));
+            return true;
+        } catch (Exception e) {
+            throw new BdException("Error al eliminar la película con ID: " + id, e);
+        }
+    }
+
+    public PeliculasDTO update(String id, PeliculasDTO peliculaDTO) {
+        try {
+            Long idLong = StringToLong.stringToLong(id);
+            Pelicula pelicula = peliculaRepository.findById(idLong).orElse(null);
+            if (pelicula == null) {
+                throw new BdException("Película no encontrada para actualizar con ID: " + id);
+            }
+            Pelicula peliculaActualizada = mapper.mapToEntity(peliculaDTO);
+            peliculaActualizada.setId(idLong);
+            peliculaRepository.save(peliculaActualizada);
+            return mapper.mapToDTO(peliculaActualizada);
+        } catch (Exception e) {
+            throw new BdException("Error al actualizar la película con ID: " + id, e);
+        }
+    }
+
     public List<PeliculasDTO> getByRating(Double rating) {
-        List<Pelicula> peliculas = peliculaRepository.findByRatingGreaterThanEqual(rating);
-        List<PeliculasDTO> peliculasDTO = new ArrayList<>();
-        peliculas.forEach(pelicula -> peliculasDTO.add(mapper.mapToDTO(pelicula)));
-        return peliculasDTO;
+        try {
+            List<Pelicula> peliculas = peliculaRepository.findByRatingGreaterThanEqual(rating);
+            List<PeliculasDTO> peliculasDTO = new ArrayList<>();
+            peliculas.forEach(pelicula -> peliculasDTO.add(mapper.mapToDTO(pelicula)));
+            return peliculasDTO;
+        } catch (Exception e) {
+            throw new BdException("Error al obtener películas por rating mayor o igual a: " + rating, e);
+        }
     }
 }
