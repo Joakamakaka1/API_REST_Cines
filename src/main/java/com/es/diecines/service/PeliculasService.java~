@@ -78,10 +78,9 @@ public class PeliculasService {
      *
      * @param id the id
      */
-    public boolean deleteByID(String id) {
+    public void deleteByID(String id) {
         Long idLong = StringToLong.stringToLong(id);
         peliculaRepository.findById(idLong).ifPresent(pelicula -> peliculaRepository.deleteById(idLong));
-        return true;
     }
 
     /**

@@ -61,17 +61,11 @@ public class SesionesService {
      * Delete by id boolean.
      *
      * @param id the id
-     * @return the boolean
      */
     public boolean deleteByID(String id) {
         Long idLong = StringToLong.stringToLong(id);
-        Sesiones sesion = sesionRepository.findById(idLong).orElse(null);
-        if (sesion == null) {
-            return false;
-        } else {
-            sesionRepository.deleteById(idLong);
-            return true;
-        }
+        sesionRepository.findById(idLong).ifPresent(sesion -> sesionRepository.deleteById(idLong));
+        return true;
     }
 
     /**

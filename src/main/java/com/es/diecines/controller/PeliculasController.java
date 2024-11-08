@@ -1,6 +1,7 @@
 package com.es.diecines.controller;
 
 import com.es.diecines.dto.PeliculasDTO;
+import com.es.diecines.errores.ErrorMsg;
 import com.es.diecines.service.PeliculasService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,12 +34,19 @@ public class PeliculasController {
      * @param peliculaDTO the pelicula dto
      * @return the response entity
      */
-    @PostMapping ("/") // -> http://localhost:8080/peliculas/
-    public ResponseEntity<PeliculasDTO> createPelicula(@RequestBody PeliculasDTO peliculaDTO) {
-        if(peliculaDTO == null) {
-            return ResponseEntity.badRequest().build();
+    @PostMapping("/")
+    public ResponseEntity<?> createPelicula(@RequestBody PeliculasDTO peliculaDTO) {
+        if (peliculaDTO == null) {
+            ErrorMsg error = new ErrorMsg("Bad Request", "The pelicula data is missing or invalid.", 400);
+            return ResponseEntity.badRequest().body(error);
         }
-        return ResponseEntity.ok(peliculaService.createPelicula(peliculaDTO));
+        try {
+            PeliculasDTO createdPelicula = peliculaService.createPelicula(peliculaDTO);
+            return ResponseEntity.ok(createdPelicula);
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", e.getMessage(), 500);
+            return ResponseEntity.status(500).body(error);
+        }
     }
 
     /**
@@ -46,12 +54,14 @@ public class PeliculasController {
      *
      * @return the all
      */
-    @GetMapping("/") // -> http://localhost:8080/peliculas/
-    public ResponseEntity<List<PeliculasDTO>> getAll() {
-        if(peliculaService.getAll() == null) {
+    @GetMapping("/")
+    public ResponseEntity<?> getAll() {
+        List<PeliculasDTO> peliculas = peliculaService.getAll();
+        if (peliculas == null || peliculas.isEmpty()) {
+            ErrorMsg error = new ErrorMsg("Not Found", "No peliculas found.", 404);
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(peliculaService.getAll());
+        return ResponseEntity.ok(peliculas);
     }
 
     /**
@@ -60,12 +70,14 @@ public class PeliculasController {
      * @param id the id
      * @return the by id
      */
-    @GetMapping("/{id}") // -> http://localhost:8080/peliculas/1
-    public ResponseEntity<PeliculasDTO> getById(@PathVariable String id) {
-        if(peliculaService.getByID(id) == null) {
-            return ResponseEntity.notFound().build();
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable String id) {
+        PeliculasDTO pelicula = peliculaService.getByID(id);
+        if (pelicula == null) {
+            ErrorMsg error = new ErrorMsg("Not Found", "Pelicula with ID " + id + " not found.", 404);
+            ResponseEntity.status(404).body(error);
         }
-        return ResponseEntity.ok(peliculaService.getByID(id));
+        return ResponseEntity.ok(pelicula);
     }
 
     /**
@@ -74,10 +86,19 @@ public class PeliculasController {
      * @param id the id
      * @return the response entity
      */
-    @DeleteMapping("/{id}") // -> http://localhost:8080/peliculas/1
-    public ResponseEntity<Boolean> deleteByID(@PathVariable String id) {
-        peliculaService.deleteByID(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteByID(@PathVariable String id) {
+        try {
+            boolean deleted = peliculaService.deleteByID(id);
+            if (!deleted) {
+                ErrorMsg error = new ErrorMsg("Not Found", "Pelicula with ID " + id + " not found to delete.", 404);
+                return ResponseEntity.status(404).body(error);
+            }
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", e.getMessage(), 500);
+            return ResponseEntity.status(500).body(error);
+        }
     }
 
     /**
@@ -87,12 +108,19 @@ public class PeliculasController {
      * @param dto the dto
      * @return the response entity
      */
-    @PutMapping("/{id}") // -> http://localhost:8080/peliculas/1
-    public ResponseEntity<PeliculasDTO> update(@PathVariable String id, @RequestBody PeliculasDTO dto) {
-        if(dto == null) {
-            return ResponseEntity.badRequest().build();
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable String id, @RequestBody PeliculasDTO dto) {
+        if (dto == null) {
+            ErrorMsg error = new ErrorMsg("Bad Request", "Pelicula data is missing or invalid.", 400);
+            return ResponseEntity.badRequest().body(error);
         }
-        return ResponseEntity.ok(peliculaService.update(id, dto));
+        try {
+            PeliculasDTO updatedPelicula = peliculaService.update(id, dto);
+            return ResponseEntity.ok(updatedPelicula);
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", e.getMessage(), 500);
+            return ResponseEntity.status(500).body(error);
+        }
     }
 
     /**
@@ -101,11 +129,13 @@ public class PeliculasController {
      * @param rating the rating
      * @return the by rating
      */
-    @GetMapping("/rating/{rating}") // -> http://localhost:8080/peliculas/rating/3.5
-    public ResponseEntity<List<PeliculasDTO>> getByRating(@PathVariable Double rating) {
-        if(peliculaService.getByRating(rating) == null) {
-            return ResponseEntity.notFound().build();
+    @GetMapping("/rating/{rating}")
+    public ResponseEntity<?> getByRating(@PathVariable Double rating) {
+        List<PeliculasDTO> peliculas = peliculaService.getByRating(rating);
+        if (peliculas == null || peliculas.isEmpty()) {
+            ErrorMsg error = new ErrorMsg("Not Found", "No peliculas found with rating " + rating, 404);
+            return ResponseEntity.status(404).body(error);
         }
-        return ResponseEntity.ok(peliculaService.getByRating(rating));
+        return ResponseEntity.ok(peliculas);
     }
 }
