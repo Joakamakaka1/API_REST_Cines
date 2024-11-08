@@ -49,6 +49,12 @@ public class PeliculasService {
         }
     }
 
+    /**
+     * Gets by id.
+     *
+     * @param id the id
+     * @return the by id
+     */
     public PeliculasDTO getByID(String id) {
         try {
             Long idLong = StringToLong.stringToLong(id);
@@ -56,12 +62,26 @@ public class PeliculasService {
             if (pelicula == null) {
                 throw new BdException("Película no encontrada con ID: " + id);
             }
-            return mapper.mapToDTO(pelicula);
-        } catch (Exception e) {
+            try {
+                return mapper.mapToDTO(pelicula);
+            } catch (Exception e) {
+                throw new BdException("Error al mapear la película con ID: " + id + " a DTO", e);
+            }
+        } catch (BdException e) {
             throw new BdException("Error al obtener la película por ID: " + id, e);
+        } catch (IllegalArgumentException e) {
+            // EN caso de que el StringToLong reciba un argumento no numérico
+            throw new BdException("Argumento ilegal al intentar obtener la película con ID: " + id, e);
+        } catch (Exception e) {
+            throw new BdException("Error al obtener la películas con ID: " + id, e);
         }
     }
 
+    /**
+     * Gets all.
+     *
+     * @return the all
+     */
     public List<PeliculasDTO> getAll() {
         try {
             List<Pelicula> peliculas = peliculaRepository.findAll();
@@ -73,6 +93,12 @@ public class PeliculasService {
         }
     }
 
+    /**
+     * Delete by id boolean.
+     *
+     * @param id the id
+     * @return the boolean
+     */
     public boolean deleteByID(String id) {
         try {
             Long idLong = StringToLong.stringToLong(id);
@@ -83,6 +109,13 @@ public class PeliculasService {
         }
     }
 
+    /**
+     * Update peliculas dto.
+     *
+     * @param id          the id
+     * @param peliculaDTO the pelicula dto
+     * @return the peliculas dto
+     */
     public PeliculasDTO update(String id, PeliculasDTO peliculaDTO) {
         try {
             Long idLong = StringToLong.stringToLong(id);
@@ -99,6 +132,12 @@ public class PeliculasService {
         }
     }
 
+    /**
+     * Gets by rating.
+     *
+     * @param rating the rating
+     * @return the by rating
+     */
     public List<PeliculasDTO> getByRating(Double rating) {
         try {
             List<Pelicula> peliculas = peliculaRepository.findByRatingGreaterThanEqual(rating);

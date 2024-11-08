@@ -50,6 +50,11 @@ public class SesionesService {
         }
     }
 
+    /**
+     * Gets all.
+     *
+     * @return the all
+     */
     public List<SesionDTO> getAll() {
         try {
             List<Sesiones> sesiones = sesionRepository.findAll();
@@ -61,6 +66,12 @@ public class SesionesService {
         }
     }
 
+    /**
+     * Delete by id boolean.
+     *
+     * @param id the id
+     * @return the boolean
+     */
     public boolean deleteByID(String id) {
         try {
             Long idLong = StringToLong.stringToLong(id);
@@ -71,6 +82,13 @@ public class SesionesService {
         }
     }
 
+    /**
+     * Update sesion dto.
+     *
+     * @param id        the id
+     * @param sesionDTO the sesion dto
+     * @return the sesion dto
+     */
     public SesionDTO update(String id, SesionDTO sesionDTO) {
         try {
             Long idLong = StringToLong.stringToLong(id);
@@ -87,6 +105,11 @@ public class SesionesService {
         }
     }
 
+    /**
+     * Gets by date.
+     *
+     * @return the by date
+     */
     public List<SesionDTO> getByDate() {
         try {
             LocalDate today = LocalDate.now();

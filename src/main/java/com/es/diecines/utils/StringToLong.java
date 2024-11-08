@@ -1,5 +1,6 @@
 package com.es.diecines.utils;
 
+import com.es.diecines.errores.BdException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,12 +15,10 @@ public class StringToLong {
      * @return the long
      */
     public static Long stringToLong(String id) {
-        Long idLong = 0L;
         try {
-            idLong = Long.parseLong(id);
+            return Long.parseLong(id);
         } catch (NumberFormatException e) {
-            throw new NumberFormatException(e.getMessage());
+            throw new BdException("El ID proporcionado no tiene un formato válido: " + id, e);
         }
-        return idLong;
     }
 }
