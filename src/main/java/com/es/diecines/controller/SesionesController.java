@@ -4,6 +4,7 @@ import com.es.diecines.dto.SesionDTO;
 import com.es.diecines.errores.ErrorMsg;
 import com.es.diecines.service.SesionesService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,9 +59,8 @@ public class SesionesController {
         try {
             SesionDTO createdSesion = sesionService.save(sesionDTO);
             return ResponseEntity.ok(createdSesion);
-        } catch (Exception e) {
-            ErrorMsg error = new ErrorMsg("Internal Server Error", e.getMessage(), 500);
-            return ResponseEntity.status(500).body(error);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -79,9 +79,8 @@ public class SesionesController {
                 return ResponseEntity.status(404).body(error);
             }
             return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            ErrorMsg error = new ErrorMsg("Internal Server Error", e.getMessage(), 500);
-            return ResponseEntity.status(500).body(error);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -105,9 +104,8 @@ public class SesionesController {
                 return ResponseEntity.status(404).body(error);
             }
             return ResponseEntity.ok(updatedSesion);
-        } catch (Exception e) {
-            ErrorMsg error = new ErrorMsg("Internal Server Error", e.getMessage(), 500);
-            return ResponseEntity.status(500).body(error);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -125,9 +123,8 @@ public class SesionesController {
                 return ResponseEntity.status(404).body(error);
             }
             return ResponseEntity.ok(sesiones);
-        } catch (Exception e) {
-            ErrorMsg error = new ErrorMsg("Internal Server Error", e.getMessage(), 500);
-            return ResponseEntity.status(500).body(error);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 }

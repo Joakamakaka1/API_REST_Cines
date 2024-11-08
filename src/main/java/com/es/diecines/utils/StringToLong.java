@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class StringToLong {
     /**
-     * String to long long.
+     * String to long.
      *
      * @param id the id
      * @return the long
@@ -18,7 +18,7 @@ public class StringToLong {
         try {
             idLong = Long.parseLong(id);
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            throw new NumberFormatException(e.getMessage());
         }
         return idLong;
     }

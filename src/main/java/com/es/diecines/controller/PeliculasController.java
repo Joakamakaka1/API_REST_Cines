@@ -4,6 +4,7 @@ import com.es.diecines.dto.PeliculasDTO;
 import com.es.diecines.errores.ErrorMsg;
 import com.es.diecines.service.PeliculasService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,9 +44,8 @@ public class PeliculasController {
         try {
             PeliculasDTO createdPelicula = peliculaService.createPelicula(peliculaDTO);
             return ResponseEntity.ok(createdPelicula);
-        } catch (Exception e) {
-            ErrorMsg error = new ErrorMsg("Internal Server Error", e.getMessage(), 500);
-            return ResponseEntity.status(500).body(error);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -95,9 +95,8 @@ public class PeliculasController {
                 return ResponseEntity.status(404).body(error);
             }
             return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            ErrorMsg error = new ErrorMsg("Internal Server Error", e.getMessage(), 500);
-            return ResponseEntity.status(500).body(error);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -117,9 +116,8 @@ public class PeliculasController {
         try {
             PeliculasDTO updatedPelicula = peliculaService.update(id, dto);
             return ResponseEntity.ok(updatedPelicula);
-        } catch (Exception e) {
-            ErrorMsg error = new ErrorMsg("Internal Server Error", e.getMessage(), 500);
-            return ResponseEntity.status(500).body(error);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
