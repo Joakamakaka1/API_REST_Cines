@@ -2,6 +2,7 @@ package com.es.diecines.service;
 
 import com.es.diecines.dto.SesionDTO;
 import com.es.diecines.errores.BdException;
+import com.es.diecines.errores.NotFoundException;
 import com.es.diecines.model.Sesiones;
 import com.es.diecines.repository.SesionesRepository;
 import com.es.diecines.utils.Mapper;
@@ -58,9 +59,14 @@ public class SesionesService {
     public List<SesionDTO> getAll() {
         try {
             List<Sesiones> sesiones = sesionRepository.findAll();
+            if (sesiones.isEmpty()) {
+                throw new NotFoundException("No sesiones found.");
+            }
             List<SesionDTO> sesionesDTO = new ArrayList<>();
             sesiones.forEach(sesion -> sesionesDTO.add(mapper.mapToDTO(sesion)));
             return sesionesDTO;
+        } catch (NotFoundException e) {
+            throw e;  // Propagar la excepción personalizada
         } catch (Exception e) {
             throw new BdException("Error al obtener todas las sesiones: " + e.getMessage(), e);
         }
@@ -75,8 +81,14 @@ public class SesionesService {
     public boolean deleteByID(String id) {
         try {
             Long idLong = StringToLong.stringToLong(id);
-            sesionRepository.findById(idLong).ifPresent(sesion -> sesionRepository.deleteById(idLong));
+            Sesiones sesion = sesionRepository.findById(idLong).orElse(null);
+            if (sesion == null) {
+                throw new NotFoundException("Sesión con ID: " + id + " no encontrada.");
+            }
+            sesionRepository.deleteById(idLong);
             return true;
+        } catch (NotFoundException e) {
+            throw e;  // Propagar la excepción personalizada
         } catch (Exception e) {
             throw new BdException("Error al eliminar la sesión con ID: " + id, e);
         }
@@ -94,12 +106,14 @@ public class SesionesService {
             Long idLong = StringToLong.stringToLong(id);
             Sesiones sesion = sesionRepository.findById(idLong).orElse(null);
             if (sesion == null) {
-                throw new BdException("Sesión no encontrada para actualizar con ID: " + id);
+                throw new NotFoundException("Sesión no encontrada para actualizar con ID: " + id);
             }
             Sesiones sesionActualizada = mapper.mapToEntity(sesionDTO);
             sesionActualizada.setId(idLong);
             sesionRepository.save(sesionActualizada);
             return mapper.mapToDTO(sesionActualizada);
+        } catch (NotFoundException e) {
+            throw e;  // Propagar la excepción personalizada
         } catch (Exception e) {
             throw new BdException("Error al actualizar la sesión con ID: " + id, e);
         }
@@ -114,9 +128,14 @@ public class SesionesService {
         try {
             LocalDate today = LocalDate.now();
             List<Sesiones> sesiones = sesionRepository.findByDate(today);
+            if (sesiones.isEmpty()) {
+                throw new NotFoundException("No sesiones found for today.");
+            }
             List<SesionDTO> sesionesDTO = new ArrayList<>();
             sesiones.forEach(sesion -> sesionesDTO.add(mapper.mapToDTO(sesion)));
             return sesionesDTO;
+        } catch (NotFoundException e) {
+            throw e;  // Propagar la excepción personalizada
         } catch (Exception e) {
             throw new BdException("Error al obtener sesiones por fecha de hoy: " + e.getMessage(), e);
         }

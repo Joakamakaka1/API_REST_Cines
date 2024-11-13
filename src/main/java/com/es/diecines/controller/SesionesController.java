@@ -2,6 +2,7 @@ package com.es.diecines.controller;
 
 import com.es.diecines.dto.SesionDTO;
 import com.es.diecines.errores.ErrorMsg;
+import com.es.diecines.errores.NotFoundException;
 import com.es.diecines.service.SesionesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -34,14 +35,18 @@ public class SesionesController {
      *
      * @return the response entity
      */
-    @GetMapping("/")
+    @GetMapping("/") // -> http://localhost:8080/sesiones
     public ResponseEntity<?> getAll() {
-        List<SesionDTO> sesiones = sesionService.getAll();
-        if (sesiones == null || sesiones.isEmpty()) {
-            ErrorMsg error = new ErrorMsg("Not Found", "No sesiones found.", 404);
+        try {
+            List<SesionDTO> sesiones = sesionService.getAll();
+            return ResponseEntity.ok(sesiones);
+        } catch (NotFoundException e) {
+            ErrorMsg error = new ErrorMsg("Not Found", e.getMessage(), 404);
             return ResponseEntity.status(404).body(error);
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", "Error al obtener todas las sesiones.", 500);
+            return ResponseEntity.status(500).body(error);
         }
-        return ResponseEntity.ok(sesiones);
     }
 
     /**
@@ -50,7 +55,7 @@ public class SesionesController {
      * @param sesionDTO the sesion dto
      * @return the response entity
      */
-    @PostMapping("/")
+    @PostMapping("/") // -> http://localhost:8080/sesiones
     public ResponseEntity<?> createSesion(@RequestBody SesionDTO sesionDTO) {
         if (sesionDTO == null) {
             ErrorMsg error = new ErrorMsg("Bad Request", "Sesion data is missing or invalid.", 400);
@@ -59,8 +64,9 @@ public class SesionesController {
         try {
             SesionDTO createdSesion = sesionService.save(sesionDTO);
             return ResponseEntity.ok(createdSesion);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e.getMessage());
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", "Error al guardar la sesión.", 500);
+            return ResponseEntity.status(500).body(error);
         }
     }
 
@@ -70,7 +76,7 @@ public class SesionesController {
      * @param id the id
      * @return the response entity
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}") // -> http://localhost:8080/sesiones
     public ResponseEntity<?> deleteByID(@PathVariable String id) {
         try {
             boolean exists = sesionService.deleteByID(id);
@@ -79,8 +85,12 @@ public class SesionesController {
                 return ResponseEntity.status(404).body(error);
             }
             return ResponseEntity.noContent().build();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e.getMessage());
+        } catch (NotFoundException e) {
+            ErrorMsg error = new ErrorMsg("Not Found", e.getMessage(), 404);
+            return ResponseEntity.status(404).body(error);
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", "Error al eliminar la sesión.", 500);
+            return ResponseEntity.status(500).body(error);
         }
     }
 
@@ -91,7 +101,7 @@ public class SesionesController {
      * @param sesionDTO the sesion dto
      * @return the response entity
      */
-    @PutMapping("/{id}")
+    @PutMapping("/{id}") // -> http://localhost:8080/sesiones
     public ResponseEntity<?> update(@PathVariable String id, @RequestBody SesionDTO sesionDTO) {
         if (sesionDTO == null) {
             ErrorMsg error = new ErrorMsg("Bad Request", "Sesion data is missing or invalid.", 400);
@@ -99,13 +109,13 @@ public class SesionesController {
         }
         try {
             SesionDTO updatedSesion = sesionService.update(id, sesionDTO);
-            if (updatedSesion == null) {
-                ErrorMsg error = new ErrorMsg("Not Found", "Sesion with ID " + id + " not found.", 404);
-                return ResponseEntity.status(404).body(error);
-            }
             return ResponseEntity.ok(updatedSesion);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e.getMessage());
+        } catch (NotFoundException e) {
+            ErrorMsg error = new ErrorMsg("Not Found", e.getMessage(), 404);
+            return ResponseEntity.status(404).body(error);
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", "Error al actualizar la sesión.", 500);
+            return ResponseEntity.status(500).body(error);
         }
     }
 
@@ -114,17 +124,17 @@ public class SesionesController {
      *
      * @return the sesiones today
      */
-    @GetMapping("/hoy")
+    @GetMapping("/hoy") // -> http://localhost:8080/sesiones
     public ResponseEntity<?> getSesionesToday() {
         try {
             List<SesionDTO> sesiones = sesionService.getByDate();
-            if (sesiones == null || sesiones.isEmpty()) {
-                ErrorMsg error = new ErrorMsg("Not Found", "No sesiones found for today.", 404);
-                return ResponseEntity.status(404).body(error);
-            }
             return ResponseEntity.ok(sesiones);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e.getMessage());
+        } catch (NotFoundException e) {
+            ErrorMsg error = new ErrorMsg("Not Found", e.getMessage(), 404);
+            return ResponseEntity.status(404).body(error);
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", "Error al obtener sesiones para hoy.", 500);
+            return ResponseEntity.status(500).body(error);
         }
     }
 }

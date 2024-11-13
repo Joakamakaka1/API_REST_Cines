@@ -4,22 +4,51 @@ package com.es.diecines.errores;
  * The type Error msg.
  */
 public class ErrorMsg {
+    private String exception;
     private String message;
-    private String details;
-    private int statusCode;
-
+    private String path;
 
     /**
      * Instantiates a new Error msg.
      *
-     * @param message    the message
-     * @param details    the details
-     * @param statusCode the status code
+     * @param exception the exception
+     * @param path      the path
      */
-    public ErrorMsg(String message, String details, int statusCode) {
-        this.message = message;
-        this.details = details;
-        this.statusCode = statusCode;
+    public ErrorMsg(Exception exception, String path) {
+        this.exception = exception.getClass().getSimpleName();
+        this.message = exception.getMessage();
+        this.path = path;
+    }
+
+    /**
+     * Instantiates a new Error msg.
+     *
+     * @param notFound the not found
+     * @param path     the path
+     * @param i        the
+     */
+    public ErrorMsg(String notFound, String path, int i) {
+        this.exception = notFound;
+        this.message = notFound;
+        this.path = path;
+    }
+
+    /**
+     * Gets exception.
+     *
+     * @return the exception
+     */
+    public String getException() {
+        return exception;
+    }
+
+    /**
+     * Sets exception.
+     *
+     * @param exception the exception
+     */
+    public void setException(String exception) {
+        this.exception = exception;
     }
 
     /**
@@ -41,38 +70,20 @@ public class ErrorMsg {
     }
 
     /**
-     * Gets details.
+     * Gets path.
      *
-     * @return the details
+     * @return the path
      */
-    public String getDetails() {
-        return details;
+    public String getPath() {
+        return path;
     }
 
     /**
-     * Sets details.
+     * Sets path.
      *
-     * @param details the details
+     * @param path the path
      */
-    public void setDetails(String details) {
-        this.details = details;
-    }
-
-    /**
-     * Gets status code.
-     *
-     * @return the status code
-     */
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    /**
-     * Sets status code.
-     *
-     * @param statusCode the status code
-     */
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
+    public void setPath(String path) {
+        this.path = path;
     }
 }

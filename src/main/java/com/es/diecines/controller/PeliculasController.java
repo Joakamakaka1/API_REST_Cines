@@ -2,6 +2,7 @@ package com.es.diecines.controller;
 
 import com.es.diecines.dto.PeliculasDTO;
 import com.es.diecines.errores.ErrorMsg;
+import com.es.diecines.errores.NotFoundException;
 import com.es.diecines.service.PeliculasService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -35,105 +36,132 @@ public class PeliculasController {
      * @param peliculaDTO the pelicula dto
      * @return the response entity
      */
-    @PostMapping("/")
+    @PostMapping("/") // -> http://localhost:8080/peliculas
     public ResponseEntity<?> createPelicula(@RequestBody PeliculasDTO peliculaDTO) {
         if (peliculaDTO == null) {
-            ErrorMsg error = new ErrorMsg("Bad Request", "The pelicula data is missing or invalid.", 400);
+            ErrorMsg error = new ErrorMsg("Bad Request", "La película enviada es inválida o incompleta.", 400);
             return ResponseEntity.badRequest().body(error);
         }
+
         try {
             PeliculasDTO createdPelicula = peliculaService.createPelicula(peliculaDTO);
-            return ResponseEntity.ok(createdPelicula);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e.getMessage());
+            return ResponseEntity.status(201).body(createdPelicula);
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", "Error al guardar la película: " + e.getMessage(), 500);
+            return ResponseEntity.status(500).body(error);
         }
     }
 
     /**
-     * Gets all.
+     * Get all peliculas response entity.
      *
-     * @return the all
+     * @return the response entity
      */
-    @GetMapping("/")
+    @GetMapping("/") // -> http://localhost:8080/peliculas
     public ResponseEntity<?> getAll() {
-        List<PeliculasDTO> peliculas = peliculaService.getAll();
-        if (peliculas == null || peliculas.isEmpty()) {
-            ErrorMsg error = new ErrorMsg("Not Found", "No peliculas found.", 404);
-            return ResponseEntity.notFound().build();
+        try {
+            List<PeliculasDTO> peliculas = peliculaService.getAll();
+            return ResponseEntity.ok(peliculas);
+        } catch (DataAccessException e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", "Error al obtener las películas.", 500);
+            return ResponseEntity.status(500).body(error);
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", "Error desconocido al obtener las películas.", 500);
+            return ResponseEntity.status(500).body(error);
         }
-        return ResponseEntity.ok(peliculas);
     }
 
     /**
-     * Gets by id.
-     *
-     * @param id the id
-     * @return the by id
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable String id) {
-        PeliculasDTO pelicula = peliculaService.getByID(id);
-        if (pelicula == null) {
-            ErrorMsg error = new ErrorMsg("Not Found", "Pelicula with ID " + id + " not found.", 404);
-            ResponseEntity.status(404).body(error);
-        }
-        return ResponseEntity.ok(pelicula);
-    }
-
-    /**
-     * Delete by id response entity.
+     * Get pelicula by id response entity.
      *
      * @param id the id
      * @return the response entity
      */
-    @DeleteMapping("/{id}")
+    @GetMapping("/{id}") // -> http://localhost:8080/peliculas
+    public ResponseEntity<?> getById(@PathVariable String id) {
+        try {
+            PeliculasDTO pelicula = peliculaService.getByID(id);
+            if (pelicula == null) {
+                ErrorMsg error = new ErrorMsg("Not Found", "Película con ID " + id + " no encontrada.", 404);
+                return ResponseEntity.status(404).body(error);
+            }
+            return ResponseEntity.ok(pelicula);
+        } catch (NotFoundException e) {
+            ErrorMsg error = new ErrorMsg("Not Found", e.getMessage(), 404);
+            return ResponseEntity.status(404).body(error);
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", "Error al obtener la película con ID " + id, 500);
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * Delete pelicula by id response entity.
+     *
+     * @param id the id
+     * @return the response entity
+     */
+    @DeleteMapping("/{id}") // -> http://localhost:8080/peliculas
     public ResponseEntity<?> deleteByID(@PathVariable String id) {
         try {
             boolean deleted = peliculaService.deleteByID(id);
             if (!deleted) {
-                ErrorMsg error = new ErrorMsg("Not Found", "Pelicula with ID " + id + " not found to delete.", 404);
+                ErrorMsg error = new ErrorMsg("Not Found", "Película con ID " + id + " no encontrada para eliminar.", 404);
                 return ResponseEntity.status(404).body(error);
             }
             return ResponseEntity.noContent().build();
+        } catch (NotFoundException e) {
+            ErrorMsg error = new ErrorMsg("Not Found", e.getMessage(), 404);
+            return ResponseEntity.status(404).body(error);
         } catch (DataAccessException e) {
-            throw new RuntimeException(e.getMessage());
+            ErrorMsg error = new ErrorMsg("Internal Server Error", "Error de acceso a la base de datos al eliminar la película.", 500);
+            return ResponseEntity.status(500).body(error);
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", "Error al eliminar la película con ID " + id, 500);
+            return ResponseEntity.status(500).body(error);
         }
     }
 
     /**
-     * Update response entity.
+     * Update pelicula response entity.
      *
-     * @param id  the id
-     * @param dto the dto
+     * @param id          the id
+     * @param peliculaDTO the pelicula dto
      * @return the response entity
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable String id, @RequestBody PeliculasDTO dto) {
-        if (dto == null) {
-            ErrorMsg error = new ErrorMsg("Bad Request", "Pelicula data is missing or invalid.", 400);
+    @PutMapping("/{id}") // -> http://localhost:8080/peliculas
+    public ResponseEntity<?> update(@PathVariable String id, @RequestBody PeliculasDTO peliculaDTO) {
+        if (peliculaDTO == null) {
+            ErrorMsg error = new ErrorMsg("Bad Request", "Datos de la película inválidos.", 400);
             return ResponseEntity.badRequest().body(error);
         }
+
         try {
-            PeliculasDTO updatedPelicula = peliculaService.update(id, dto);
+            PeliculasDTO updatedPelicula = peliculaService.update(id, peliculaDTO);
             return ResponseEntity.ok(updatedPelicula);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e.getMessage());
+        } catch (NotFoundException e) {
+            ErrorMsg error = new ErrorMsg("Not Found", e.getMessage(), 404);
+            return ResponseEntity.status(404).body(error);
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", "Error al actualizar la película.", 500);
+            return ResponseEntity.status(500).body(error);
         }
     }
 
     /**
-     * Gets by rating.
+     * Get peliculas by rating response entity.
      *
      * @param rating the rating
-     * @return the by rating
+     * @return the response entity
      */
-    @GetMapping("/rating/{rating}")
+    @GetMapping("/rating/{rating}") // -> http://localhost:8080/peliculas
     public ResponseEntity<?> getByRating(@PathVariable Double rating) {
-        List<PeliculasDTO> peliculas = peliculaService.getByRating(rating);
-        if (peliculas == null || peliculas.isEmpty()) {
-            ErrorMsg error = new ErrorMsg("Not Found", "No peliculas found with rating " + rating, 404);
-            return ResponseEntity.status(404).body(error);
+        try {
+            List<PeliculasDTO> peliculas = peliculaService.getByRating(rating);
+            return ResponseEntity.ok(peliculas);
+        } catch (Exception e) {
+            ErrorMsg error = new ErrorMsg("Internal Server Error", "Error al obtener las películas por rating.", 500);
+            return ResponseEntity.status(500).body(error);
         }
-        return ResponseEntity.ok(peliculas);
     }
 }
